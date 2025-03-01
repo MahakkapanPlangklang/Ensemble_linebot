@@ -13,7 +13,7 @@ line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 # 🔹 ตั้งค่า URL ของ API พยากรณ์ที่ Deploy ไว้บน Render
-PREDICTION_API_URL = "https://your-api.onrender.com/predict"
+PREDICTION_API_URL = "https://ensemble-t564.onrender.com/predict"
 
 app = Flask(__name__)
 
