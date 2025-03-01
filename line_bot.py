@@ -9,9 +9,12 @@ import os
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("/ycMqmThIG73IIedsA38axnF1ZigpCZPXP9MK2Ek86vWWxLGApcM5x5N7q6pE8cPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6LIAPF2z5SRkrAKuAA9U4mgDwKYULuHZsoa4si70zQjVQdB04t89/1O/w1cDnyilFU=")
 LINE_CHANNEL_SECRET = os.getenv("9c41d2a0275ecd4e398efd7d2e4548f7")
 
-# ✅ 2️⃣ ตรวจสอบว่าค่าของ LINE API Key ถูกต้องหรือไม่
+print(f"🔍 LINE_CHANNEL_ACCESS_TOKEN: {LINE_CHANNEL_ACCESS_TOKEN}")
+print(f"🔍 LINE_CHANNEL_SECRET: {LINE_CHANNEL_SECRET}")
+
 if not LINE_CHANNEL_ACCESS_TOKEN:
     raise ValueError("❌ ERROR: LINE_CHANNEL_ACCESS_TOKEN ไม่มีค่า หรือไม่ได้ตั้งใน Environment Variables")
+
 if not LINE_CHANNEL_SECRET:
     raise ValueError("❌ ERROR: LINE_CHANNEL_SECRET ไม่มีค่า หรือไม่ได้ตั้งใน Environment Variables")
 
