@@ -5,14 +5,21 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
 import os
 
-# 🔹 ตั้งค่า LINE API (ใช้ค่าจริงจาก LINE Developer Console)
+# ✅ 1️⃣ โหลดค่าจาก Environment Variables (ถ้าไม่มี ให้ใช้ค่าดีฟอลต์)
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("/ycMqmThIG73IIedsA38axnF1ZigpCZPXP9MK2Ek86vWWxLGApcM5x5N7q6pE8cPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6LIAPF2z5SRkrAKuAA9U4mgDwKYULuHZsoa4si70zQjVQdB04t89/1O/w1cDnyilFU=")
 LINE_CHANNEL_SECRET = os.getenv("9c41d2a0275ecd4e398efd7d2e4548f7")
 
+# ✅ 2️⃣ ตรวจสอบว่าค่าของ LINE API Key ถูกต้องหรือไม่
+if not LINE_CHANNEL_ACCESS_TOKEN:
+    raise ValueError("❌ ERROR: LINE_CHANNEL_ACCESS_TOKEN ไม่มีค่า หรือไม่ได้ตั้งใน Environment Variables")
+if not LINE_CHANNEL_SECRET:
+    raise ValueError("❌ ERROR: LINE_CHANNEL_SECRET ไม่มีค่า หรือไม่ได้ตั้งใน Environment Variables")
+
+# ✅ 3️⃣ ตั้งค่า API ของ LINE
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
-# 🔹 ตั้งค่า URL ของ API พยากรณ์ที่ Deploy ไว้บน Render
+# ✅ 4️⃣ ตั้งค่า URL ของ API พยากรณ์ที่ Deploy บน Render (เปลี่ยนเป็น URL จริง)
 PREDICTION_API_URL = "https://ensemble-t564.onrender.com/predict"
 
 app = Flask(__name__)
