@@ -1,17 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction
+)
 import requests
 
 LINE_CHANNEL_ACCESS_TOKEN = "jhJocTrG2WWZocXJkj2TGNtchpZKEsxS5n7DssQKi2pgad1k83Rz9iJmtU8P6JoPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6K7aVxVPptE19s3f6tJ1lnGblJie4P5PBEoDIlp+T+aKgdB04t89/1O/w1cDnyilFU="
 LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
-
-if not LINE_CHANNEL_ACCESS_TOKEN or LINE_CHANNEL_ACCESS_TOKEN == "None":
-    raise ValueError("ERROR: LINE_CHANNEL_ACCESS_TOKEN ไม่มีค่า หรือไม่ถูกต้อง")
-
-if not LINE_CHANNEL_SECRET or LINE_CHANNEL_SECRET == "None":
-    raise ValueError("ERROR: LINE_CHANNEL_SECRET ไม่มีค่า หรือไม่ถูกต้อง")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -19,6 +15,8 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 PREDICTION_API_URL = "https://ensemble-t564.onrender.com/predict"
 
 app = Flask(__name__)
+
+user_sessions = {}
 
 @app.route("/", methods=["GET"])
 def home():
@@ -38,43 +36,90 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_input = event.message.text.strip()
-    print(f"User Input: {user_input}")
+    user_id = event.source.user_id
+    user_input = event.message.text.strip().lower()
 
-    try:
-        user_data = parse_user_input(user_input)
+    if user_input in ["help", "ช่วยเหลือ"]:
+        reply_text = (
+            "🔹 วิธีใช้ระบบพยากรณ์:\n"
+            "1️⃣ พิมพ์ 'Prediction' เพื่อเริ่มต้น\n"
+            "2️⃣ บอทจะถามค่าที่ต้องกรอกทีละข้อ\n"
+            "3️⃣ ตอบค่าต่างๆ ตามที่ระบบขอ\n"
+            "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล"
+        )
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
 
-        if not user_data:
-            reply_text = "กรุณาส่งข้อมูลในรูปแบบ: \nBill Length, Bill Depth, Flipper Length, Body Mass, Sex"
-        else:
-            response = requests.post(PREDICTION_API_URL, json=user_data)
-            result = response.json()
+    if user_input == "prediction":
+        user_sessions[user_id] = {"step": 1, "data": {}}
+        reply_text = "กรุณากรอกค่า Bill Length (mm) เช่น 40.1"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
 
-            if "prediction" in result:
-                reply_text = f"สายพันธุ์ที่คาดการณ์: {result['prediction']}"
+    if user_id in user_sessions:
+        session = user_sessions[user_id]
+        step = session["step"]
+
+        try:
+            if step == 1:
+                session["data"]["bill_length_mm"] = float(user_input)
+                reply_text = "กรุณากรอกค่า Bill Depth (mm) เช่น 18.7"
+                session["step"] += 1
+            elif step == 2:
+                session["data"]["bill_depth_mm"] = float(user_input)
+                reply_text = "กรุณากรอกค่า Flipper Length (mm) เช่น 190.5"
+                session["step"] += 1
+            elif step == 3:
+                session["data"]["flipper_length_mm"] = float(user_input)
+                reply_text = "กรุณากรอกค่า Body Mass (g) เช่น 3500"
+                session["step"] += 1
+            elif step == 4:
+                session["data"]["body_mass_g"] = float(user_input)
+                reply_text = "กรุณาเลือกเพศของนก (MALE หรือ FEMALE)"
+                session["step"] += 1
+
+                quick_reply = QuickReply(
+                    items=[
+                        QuickReplyButton(action=MessageAction(label="MALE", text="MALE")),
+                        QuickReplyButton(action=MessageAction(label="FEMALE", text="FEMALE"))
+                    ]
+                )
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
+                return
+            elif step == 5:
+                session["data"]["sex"] = user_input.upper()
+
+                if session["data"]["sex"] not in ["MALE", "FEMALE"]:
+                    reply_text = "กรุณาเลือกเพศเป็น 'MALE' หรือ 'FEMALE' เท่านั้น"
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                    return
+
+                response = requests.post(PREDICTION_API_URL, json=session["data"])
+                result = response.json()
+
+                if "prediction" in result:
+                    reply_text = f"สายพันธุ์ที่คาดการณ์: {result['prediction']}"
+                else:
+                    reply_text = f"Error: {result.get('error', 'ไม่สามารถพยากรณ์ได้')}"
+
+                del user_sessions[user_id]
             else:
-                reply_text = f"Error: {result['error']}"
+                reply_text = "มีข้อผิดพลาด กรุณาลองใหม่"
 
-    except Exception as e:
-        reply_text = f"Error: {str(e)}"
+        except ValueError:
+            reply_text = "กรุณากรอกค่าตัวเลขที่ถูกต้อง"
 
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
 
-def parse_user_input(text):
-    try:
-        parts = text.split(",")
-        if len(parts) != 5:
-            return None
-        
-        return {
-            "bill_length_mm": float(parts[0]),
-            "bill_depth_mm": float(parts[1]),
-            "flipper_length_mm": float(parts[2]),
-            "body_mass_g": float(parts[3]),
-            "sex": parts[4].strip().upper()
-        }
-    except:
-        return None
+    quick_reply = QuickReply(
+        items=[
+            QuickReplyButton(action=MessageAction(label="เริ่มพยากรณ์", text="Prediction")),
+            QuickReplyButton(action=MessageAction(label="วิธีใช้", text="ช่วยเหลือ"))
+        ]
+    )
+    reply_text = "ไม่เข้าใจคำสั่ง กรุณาเลือกจากปุ่มด้านล่าง"
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
