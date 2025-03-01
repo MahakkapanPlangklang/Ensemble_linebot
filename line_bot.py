@@ -7,7 +7,7 @@ import os
 
 # 🔹 ตั้งค่า LINE API (ใช้ค่าจริงจาก LINE Developer Console)
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "YOUR_ACCESS_TOKEN")
-LINE_CHANNEL_SECRET = os.getenv("5c169187c32d39dffbc8b5b74e1471e2")
+LINE_CHANNEL_SECRET = os.getenv("9c41d2a0275ecd4e398efd7d2e4548f7")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
