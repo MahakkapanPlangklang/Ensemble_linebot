@@ -5,6 +5,7 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
 )
 import requests
+from linebot.models import ImageSendMessage
 
 LINE_CHANNEL_ACCESS_TOKEN = "jhJocTrG2WWZocXJkj2TGNtchpZKEsxS5n7DssQKi2pgad1k83Rz9iJmtU8P6JoPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6K7aVxVPptE19s3f6tJ1lnGblJie4P5PBEoDIlp+T+aKgdB04t89/1O/w1cDnyilFU="
 LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
@@ -14,9 +15,9 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 PREDICTION_API_URL = "https://ensemble-t564.onrender.com/predict"
 
-app = Flask(__name__)
-
 user_sessions = {}
+
+app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -45,14 +46,46 @@ def handle_message(event):
             "1️⃣ พิมพ์ 'Prediction' เพื่อเริ่มต้น\n"
             "2️⃣ บอทจะถามค่าที่ต้องกรอกทีละข้อ\n"
             "3️⃣ ตอบค่าต่างๆ ตามที่ระบบขอ\n"
-            "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล"
+            "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล\n"
+            "🔸 หากต้องการเริ่มใหม่ ให้พิมพ์ 'ยกเลิก'"
         )
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        reply_image=ImageSendMessage(
+            original_content_url="https://i.imgur.com/xWi0zTj_d.webp?maxwidth=760&fidelity=grand",
+            preview_image_url="https://i.imgur.com/xWi0zTj_d.webp?maxwidth=760&fidelity=grand"
+
+        )
+
+        line_bot_api.reply_message(event.reply_token,[TextSendMessage(text=reply_text),reply_image])
         return
 
     if user_input in ["prediction", "พยากรณ์", "ทำนาย", "predict", "predictions"]:
         user_sessions[user_id] = {"step": 1, "data": {}}
         reply_text = "กรุณากรอกค่า Bill Length (mm) เช่น 40.1"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
+
+    if user_input in ["ถูกต้อง", "ยืนยันข้อมูล"]:
+        if user_id not in user_sessions or "data" not in user_sessions[user_id]:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="ไม่พบข้อมูล กรุณาเริ่มใหม่"))
+            return
+
+        user_data = user_sessions[user_id]["data"]
+
+        response = requests.post(PREDICTION_API_URL, json=user_data)
+        result = response.json()
+
+        if "prediction" in result:
+            reply_text = f"สายพันธุ์ที่คาดการณ์: {result['prediction']}"
+        else:
+            reply_text = f"Error: {result.get('error', 'ไม่สามารถพยากรณ์ได้')}"
+
+        del user_sessions[user_id]  
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
+
+    if user_input == "ยกเลิก":
+        del user_sessions[user_id]  
+        reply_text = "ข้อมูลถูกยกเลิก กรุณาเริ่มใหม่"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
 
@@ -104,32 +137,6 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
 
-    if user_input == "ยืนยันข้อมูล":
-        user_data = user_sessions.get(user_id, {}).get("data", {})
-
-        if not user_data:
-            reply_text = "ไม่พบข้อมูล กรุณาเริ่มใหม่"
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-            return
-
-        response = requests.post(PREDICTION_API_URL, json=user_data)
-        result = response.json()
-
-        if "prediction" in result:
-            reply_text = f"สายพันธุ์ที่คาดการณ์: {result['prediction']}"
-        else:
-            reply_text = f"Error: {result.get('error', 'ไม่สามารถพยากรณ์ได้')}"
-
-        del user_sessions[user_id]
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-        return
-
-    elif user_input == "ยกเลิก":
-        del user_sessions[user_id]
-        reply_text = "ข้อมูลถูกยกเลิก กรุณาเริ่มใหม่"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-        return
-
 def create_summary_flex(user_data):
     flex_message = {
         "type": "bubble",
@@ -155,17 +162,8 @@ def create_summary_flex(user_data):
             "layout": "horizontal",
             "spacing": "md",
             "contents": [
-                {
-                    "type": "button",
-                    "style": "primary",
-                    "color": "#1DB446",
-                    "action": {"type": "message", "label": "ถูกต้อง", "text": "ยืนยันข้อมูล"}
-                },
-                {
-                    "type": "button",
-                    "style": "secondary",
-                    "action": {"type": "message", "label": "ยกเลิก", "text": "ยกเลิก"}
-                }
+                {"type": "button", "style": "primary", "color": "#1DB446", "action": {"type": "message", "label": "ถูกต้อง", "text": "ยืนยันข้อมูล"}},
+                {"type": "button", "style": "secondary", "action": {"type": "message", "label": "ยกเลิก", "text": "ยกเลิก"}}
             ]
         }
     }
