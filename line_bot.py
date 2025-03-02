@@ -155,100 +155,108 @@ def create_summary_flex(user_data):
                 },
                 {
                     "type": "separator",
-                    "margin": "md",
+                    "margin": "sm",
                     "color": "#ffffff"
                 },
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "margin": "md",
-                    "spacing": "sm",
+                    "margin": "sm",
+                    "spacing": "xs",
                     "contents": [
                         {
                             "type": "text",
                             "text": f"Bill Length: {user_data['bill_length_mm']} mm",
                             "size": "md",
-                            "color": "#ffffff"
+                            "color": "#FFD700",
+                            "weight": "bold"
                         },
                         {
                             "type": "text",
                             "text": f"Bill Depth: {user_data['bill_depth_mm']} mm",
                             "size": "md",
-                            "color": "#ffffff"
+                            "color": "#00BFFF",
+                            "weight": "bold"
                         },
                         {
                             "type": "text",
                             "text": f"Flipper Length: {user_data['flipper_length_mm']} mm",
                             "size": "md",
-                            "color": "#ffffff"
+                            "color": "#32CD32",
+                            "weight": "bold"
                         },
                         {
                             "type": "text",
                             "text": f"Body Mass: {user_data['body_mass_g']} g",
                             "size": "md",
-                            "color": "#ffffff"
+                            "color": "#FF4500",
+                            "weight": "bold"
                         },
                         {
                             "type": "text",
                             "text": f"Sex: {user_data['sex']}",
                             "size": "md",
-                            "color": "#ffffff"
+                            "color": "#8A2BE2",
+                            "weight": "bold"
                         }
                     ]
                 },
                 {
                     "type": "separator",
-                    "margin": "md",
+                    "margin": "sm",
                     "color": "#ffffff"
                 },
                 {
                     "type": "text",
                     "text": "ข้อมูลของคุณถูกต้องหรือไม่?",
-                    "margin": "md",
+                    "margin": "sm",
                     "size": "md",
                     "color": "#ffffff",
                     "align": "center",
                     "weight": "bold"
                 }
             ],
-            "backgroundColor": "#2C3E50",  
-            "cornerRadius": "lg",  
-            "paddingAll": "lg"  
+            "backgroundColor": "#FF69B4",  
+            "cornerRadius": "md",  
+            "paddingAll": "md"  
         },
         "footer": {
             "type": "box",
             "layout": "horizontal",
-            "spacing": "md",
+            "spacing": "none",
             "contents": [
                 {
                     "type": "button",
                     "style": "primary",
-                    "color": "#27AE60",
+                    "color": "#32CD32",
                     "action": {
                         "type": "message",
                         "label": "ถูกต้อง",
                         "text": "ยืนยันข้อมูล"
                     },
-                    "height": "sm"
+                    "height": "sm",
+                    "margin": "none"
                 },
                 {
                     "type": "button",
                     "style": "secondary",
-                    "color": "#E74C3C",
+                    "color": "#FF4500",
                     "action": {
                         "type": "message",
                         "label": "ยกเลิก",
                         "text": "ยกเลิก"
                     },
-                    "height": "sm"
+                    "height": "sm",
+                    "margin": "none"
                 }
             ],
-            "backgroundColor": "#34495E",
-            "cornerRadius": "lg",
-            "paddingAll": "md"
+            "backgroundColor": "#FFD700",  
+            "cornerRadius": "md",
+            "paddingAll": "xs" 
         }
     }
     return FlexSendMessage(alt_text="สรุปข้อมูลของคุณ", contents=flex_message)
+
 
 
 if __name__ == "__main__":
