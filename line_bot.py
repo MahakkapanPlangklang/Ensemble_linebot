@@ -216,9 +216,9 @@ def create_summary_flex(user_data):
                     "weight": "bold"
                 }
             ],
-            "backgroundColor": "#FF69B4",  
-            "cornerRadius": "md",  
-            "paddingAll": "md"  
+            "backgroundColor": "#2C3E50",
+            "cornerRadius": "md",
+            "paddingAll": "md"
         },
         "footer": {
             "type": "box",
@@ -228,7 +228,7 @@ def create_summary_flex(user_data):
                 {
                     "type": "button",
                     "style": "primary",
-                    "color": "#32CD32",
+                    "color": "#27AE60",
                     "action": {
                         "type": "message",
                         "label": "ถูกต้อง",
@@ -240,7 +240,7 @@ def create_summary_flex(user_data):
                 {
                     "type": "button",
                     "style": "secondary",
-                    "color": "#FF4500",
+                    "color": "#E74C3C",
                     "action": {
                         "type": "message",
                         "label": "ยกเลิก",
@@ -250,12 +250,13 @@ def create_summary_flex(user_data):
                     "margin": "none"
                 }
             ],
-            "backgroundColor": "#FFD700",  
+            "backgroundColor": "#34495E",
             "cornerRadius": "md",
-            "paddingAll": "xs" 
+            "paddingAll": "xs"
         }
     }
     return FlexSendMessage(alt_text="สรุปข้อมูลของคุณ", contents=flex_message)
+
 
 
 
