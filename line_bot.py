@@ -49,8 +49,8 @@ def handle_message(event):
             "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล"
         )
         reply_image=ImageSendMessage(
-            original_content_url="https://www.voyagers.travel/_ipx/w_2400&f_webp&q_85/google/travel-web-app-1.appspot.com/flamelink/media/King%20penguin%20-%20Canva%20-%20zona.jpg%3Falt=media",
-            preview_image_url="https://www.voyagers.travel/_ipx/w_2400&f_webp&q_85/google/travel-web-app-1.appspot.com/flamelink/media/King%20penguin%20-%20Canva%20-%20zona.jpg%3Falt=media"
+            original_content_url="P.jpg",
+            preview_image_url="P.jpg"
 
         )
 
