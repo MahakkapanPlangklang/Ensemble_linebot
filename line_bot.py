@@ -39,7 +39,7 @@ def handle_message(event):
     user_id = event.source.user_id
     user_input = event.message.text.strip().lower()
 
-    if user_input in ["help", "ช่วยเหลือ"]:
+    if user_input in ["help", "ช่วยเหลือ","วิธีใช้","สอบถาม"]:
         reply_text = (
             "🔹 วิธีใช้ระบบพยากรณ์\n"
             "1️⃣ พิมพ์ 'Prediction' เพื่อเริ่มต้น\n"
@@ -50,7 +50,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
 
-    if user_input == "prediction":
+    if user_input == "prediction,"พยากรณ์","ทำนาย","predict","predictions":
         user_sessions[user_id] = {"step": 1, "data": {}}
         reply_text = "กรุณากรอกค่า Bill Length (mm) เช่น 40.1"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
