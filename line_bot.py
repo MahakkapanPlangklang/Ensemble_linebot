@@ -5,6 +5,7 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction
 )
 import requests
+from linebot.models import ImageSendMessage
 
 LINE_CHANNEL_ACCESS_TOKEN = "jhJocTrG2WWZocXJkj2TGNtchpZKEsxS5n7DssQKi2pgad1k83Rz9iJmtU8P6JoPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6K7aVxVPptE19s3f6tJ1lnGblJie4P5PBEoDIlp+T+aKgdB04t89/1O/w1cDnyilFU="
 LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
@@ -47,7 +48,12 @@ def handle_message(event):
             "3️⃣ ตอบค่าต่างๆ ตามที่ระบบขอ\n"
             "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล"
         )
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        reply_image=ImageSendMessage(
+            original_content_url="https://www.voyagers.travel/_ipx/w_2400&f_webp&q_85/google/travel-web-app-1.appspot.com/flamelink/media/King%20penguin%20-%20Canva%20-%20zona.jpg%3Falt=media"
+
+        )
+
+        line_bot_api.reply_message(event.reply_token,[TextSendMessage(text=reply_text),reply_image])
         return
 
     if user_input in ["prediction","พยากรณ์","ทำนาย","predict","predictions"]:
