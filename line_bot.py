@@ -6,6 +6,7 @@ from linebot.models import (
 )
 import requests
 from linebot.models import ImageSendMessage
+from linebot.models import FlexSendMessage
 
 LINE_CHANNEL_ACCESS_TOKEN = "jhJocTrG2WWZocXJkj2TGNtchpZKEsxS5n7DssQKi2pgad1k83Rz9iJmtU8P6JoPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6K7aVxVPptE19s3f6tJ1lnGblJie4P5PBEoDIlp+T+aKgdB04t89/1O/w1cDnyilFU="
 LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
@@ -34,6 +35,47 @@ def callback():
         return "Invalid signature", 400
 
     return "OK"
+
+def create_summary_flex(user_data):
+    flex_message = {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {"type": "text", "text": "ข้อมูลของคุณ", "weight": "bold", "size": "xl", "color": "#1DB446"},
+                {"type": "separator", "margin": "md"},
+                {"type": "box", "layout": "vertical", "margin": "md", "contents": [
+                    {"type": "text", "text": f"Bill Length: {user_data['bill_length_mm']} mm"},
+                    {"type": "text", "text": f"Bill Depth: {user_data['bill_depth_mm']} mm"},
+                    {"type": "text", "text": f"Flipper Length: {user_data['flipper_length_mm']} mm"},
+                    {"type": "text", "text": f"Body Mass: {user_data['body_mass_g']} g"},
+                    {"type": "text", "text": f"Sex: {user_data['sex']}"},
+                ]},
+                {"type": "separator", "margin": "md"},
+                {"type": "text", "text": "ข้อมูลของคุณถูกต้องหรือไม่?", "margin": "md"},
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "horizontal",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#1DB446",
+                    "action": {"type": "message", "label": "ถูกต้อง", "text": "ยืนยันข้อมูล"}
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "action": {"type": "message", "label": "ยกเลิก", "text": "ยกเลิก"}
+                }
+            ]
+        }
+    }
+    return FlexSendMessage(alt_text="สรุปข้อมูลของคุณ", contents=flex_message)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -101,9 +143,21 @@ def handle_message(event):
                     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
                     return
 
-                response = requests.post(PREDICTION_API_URL, json=session["data"])
-                result = response.json()
+                summary_flex = create_summary_flex(session["data"])
+                line_bot_api.reply_message(event.reply_token, summary_flex)
+                return
 
+            if user_input == "ยืนยันข้อมูล":
+                user_data = user_sessions.get(user_id, {}).get("data", {})
+
+                if not user_data:
+                    reply_text = "ไม่พบข้อมูล กรุณาเริ่มใหม่"
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                    return
+
+                response = requests.post(PREDICTION_API_URL, json=user_data)
+                result = response.json()
+            
                 if "prediction" in result:
                     reply_text = f"สายพันธุ์ที่คาดการณ์: {result['prediction']}"
                 else:
