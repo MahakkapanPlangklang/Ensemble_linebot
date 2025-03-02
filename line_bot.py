@@ -1,11 +1,11 @@
+import re
 from flask import Flask, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage
+    MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction, FlexSendMessage, ImageSendMessage
 )
 import requests
-from linebot.models import ImageSendMessage
 
 LINE_CHANNEL_ACCESS_TOKEN = "jhJocTrG2WWZocXJkj2TGNtchpZKEsxS5n7DssQKi2pgad1k83Rz9iJmtU8P6JoPxlJgry9wkW7NgB3ENgb2yVuaDnlVtHB3CmupkHQt/6K7aVxVPptE19s3f6tJ1lnGblJie4P5PBEoDIlp+T+aKgdB04t89/1O/w1cDnyilFU="
 LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
@@ -94,31 +94,38 @@ def handle_message(event):
         step = session["step"]
 
         try:
-            if step == 1:
-                session["data"]["bill_length_mm"] = float(user_input)
-                reply_text = "กรุณากรอกค่า Bill Depth (mm) เช่น 18.7"
-                session["step"] += 1
-            elif step == 2:
-                session["data"]["bill_depth_mm"] = float(user_input)
-                reply_text = "กรุณากรอกค่า Flipper Length (mm) เช่น 190.5"
-                session["step"] += 1
-            elif step == 3:
-                session["data"]["flipper_length_mm"] = float(user_input)
-                reply_text = "กรุณากรอกค่า Body Mass (g) เช่น 3500"
-                session["step"] += 1
-            elif step == 4:
-                session["data"]["body_mass_g"] = float(user_input)
-                reply_text = "กรุณาเลือกเพศของนก (MALE หรือ FEMALE)"
+            if step in [1, 2, 3, 4]:  
+                if not re.match(r'^\d+(\.\d+)?$', user_input):
+                    reply_text = "กรุณากรอกเฉพาะค่าตัวเลขที่เป็นบวก เช่น 40.1"
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+                    return
+
+                value = float(user_input)
+
+                if step == 1:
+                    session["data"]["bill_length_mm"] = value
+                    reply_text = "กรุณากรอกค่า Bill Depth (mm) เช่น 18.7"
+                elif step == 2:
+                    session["data"]["bill_depth_mm"] = value
+                    reply_text = "กรุณากรอกค่า Flipper Length (mm) เช่น 190.5"
+                elif step == 3:
+                    session["data"]["flipper_length_mm"] = value
+                    reply_text = "กรุณากรอกค่า Body Mass (g) เช่น 3500"
+                elif step == 4:
+                    session["data"]["body_mass_g"] = value
+                    reply_text = "กรุณาเลือกเพศของนก (MALE หรือ FEMALE)"
+                    quick_reply = QuickReply(
+                        items=[
+                            QuickReplyButton(action=MessageAction(label="MALE", text="MALE")),
+                            QuickReplyButton(action=MessageAction(label="FEMALE", text="FEMALE"))
+                        ]
+                    )
+                    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
+                    session["step"] += 1
+                    return
+
                 session["step"] += 1
 
-                quick_reply = QuickReply(
-                    items=[
-                        QuickReplyButton(action=MessageAction(label="MALE", text="MALE")),
-                        QuickReplyButton(action=MessageAction(label="FEMALE", text="FEMALE"))
-                    ]
-                )
-                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
-                return
             elif step == 5:
                 session["data"]["sex"] = user_input.upper()
 
@@ -133,6 +140,8 @@ def handle_message(event):
 
         except ValueError:
             reply_text = "กรุณากรอกค่าตัวเลขที่ถูกต้อง"
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+            return
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
