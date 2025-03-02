@@ -140,34 +140,116 @@ def handle_message(event):
 def create_summary_flex(user_data):
     flex_message = {
         "type": "bubble",
+        "size": "mega",
         "body": {
             "type": "box",
             "layout": "vertical",
             "contents": [
-                {"type": "text", "text": "ข้อมูลของคุณ", "weight": "bold", "size": "xl", "color": "#1DB446"},
-                {"type": "separator", "margin": "md"},
-                {"type": "box", "layout": "vertical", "margin": "md", "contents": [
-                    {"type": "text", "text": f"Bill Length: {user_data['bill_length_mm']} mm"},
-                    {"type": "text", "text": f"Bill Depth: {user_data['bill_depth_mm']} mm"},
-                    {"type": "text", "text": f"Flipper Length: {user_data['flipper_length_mm']} mm"},
-                    {"type": "text", "text": f"Body Mass: {user_data['body_mass_g']} g"},
-                    {"type": "text", "text": f"Sex: {user_data['sex']}"},
-                ]},
-                {"type": "separator", "margin": "md"},
-                {"type": "text", "text": "ข้อมูลของคุณถูกต้องหรือไม่?", "margin": "md"},
-            ]
+                {
+                    "type": "text",
+                    "text": "ข้อมูลของคุณ",
+                    "weight": "bold",
+                    "size": "xl",
+                    "color": "#ffffff",
+                    "align": "center"
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                    "color": "#ffffff"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "md",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": f"Bill Length: {user_data['bill_length_mm']} mm",
+                            "size": "md",
+                            "color": "#ffffff"
+                        },
+                        {
+                            "type": "text",
+                            "text": f"Bill Depth: {user_data['bill_depth_mm']} mm",
+                            "size": "md",
+                            "color": "#ffffff"
+                        },
+                        {
+                            "type": "text",
+                            "text": f"Flipper Length: {user_data['flipper_length_mm']} mm",
+                            "size": "md",
+                            "color": "#ffffff"
+                        },
+                        {
+                            "type": "text",
+                            "text": f"Body Mass: {user_data['body_mass_g']} g",
+                            "size": "md",
+                            "color": "#ffffff"
+                        },
+                        {
+                            "type": "text",
+                            "text": f"Sex: {user_data['sex']}",
+                            "size": "md",
+                            "color": "#ffffff"
+                        }
+                    ]
+                },
+                {
+                    "type": "separator",
+                    "margin": "md",
+                    "color": "#ffffff"
+                },
+                {
+                    "type": "text",
+                    "text": "ข้อมูลของคุณถูกต้องหรือไม่?",
+                    "margin": "md",
+                    "size": "md",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "weight": "bold"
+                }
+            ],
+            "backgroundColor": "#2C3E50",  
+            "cornerRadius": "lg",  
+            "paddingAll": "lg"  
         },
         "footer": {
             "type": "box",
             "layout": "horizontal",
             "spacing": "md",
             "contents": [
-                {"type": "button", "style": "primary", "color": "#1DB446", "action": {"type": "message", "label": "ถูกต้อง", "text": "ยืนยันข้อมูล"}},
-                {"type": "button", "style": "secondary", "action": {"type": "message", "label": "ยกเลิก", "text": "ยกเลิก"}}
-            ]
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#27AE60",
+                    "action": {
+                        "type": "message",
+                        "label": "ถูกต้อง",
+                        "text": "ยืนยันข้อมูล"
+                    },
+                    "height": "sm"
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#E74C3C",
+                    "action": {
+                        "type": "message",
+                        "label": "ยกเลิก",
+                        "text": "ยกเลิก"
+                    },
+                    "height": "sm"
+                }
+            ],
+            "backgroundColor": "#34495E",
+            "cornerRadius": "lg",
+            "paddingAll": "md"
         }
     }
     return FlexSendMessage(alt_text="สรุปข้อมูลของคุณ", contents=flex_message)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
