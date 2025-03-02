@@ -49,8 +49,8 @@ def handle_message(event):
             "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล"
         )
         reply_image=ImageSendMessage(
-            original_content_url="P.jpg",
-            preview_image_url="P.jpg"
+            original_content_url="https://drive.google.com/file/d/1Dxih_KDBhFtMWkYCtbO8I_ToF94uzSFC/view?usp=sharing",
+            preview_image_url="https://drive.google.com/file/d/1Dxih_KDBhFtMWkYCtbO8I_ToF94uzSFC/view?usp=sharing"
 
         )
 
