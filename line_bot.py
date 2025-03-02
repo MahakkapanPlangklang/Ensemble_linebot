@@ -50,7 +50,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
 
-    if user_input == "prediction,"พยากรณ์","ทำนาย","predict","predictions":
+    if user_input in ["prediction,"พยากรณ์","ทำนาย","predict","predictions"]:
         user_sessions[user_id] = {"step": 1, "data": {}}
         reply_text = "กรุณากรอกค่า Bill Length (mm) เช่น 40.1"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
