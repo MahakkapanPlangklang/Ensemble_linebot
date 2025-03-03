@@ -49,13 +49,11 @@ def handle_message(event):
             "4️⃣ หลังจากกรอกครบ ระบบจะทำการพยากรณ์ผล\n"
             "🔸 หากต้องการเริ่มใหม่ ให้พิมพ์ 'ยกเลิก'"
         )
-        reply_image=ImageSendMessage(
+        reply_image = ImageSendMessage(
             original_content_url="https://i.imgur.com/3NhBMc5.png",
             preview_image_url="https://i.imgur.com/3NhBMc5.png"
-
         )
-
-        line_bot_api.reply_message(event.reply_token,[TextSendMessage(text=reply_text),reply_image])
+        line_bot_api.reply_message(event.reply_token, [TextSendMessage(text=reply_text), reply_image])
         return
 
     if user_input in ["prediction", "พยากรณ์", "ทำนาย", "predict", "predictions"]:
@@ -144,6 +142,18 @@ def handle_message(event):
             return
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
+
+    # If the user's input doesn't match any predefined commands
+    else:
+        quick_reply = QuickReply(
+            items=[
+                QuickReplyButton(action=MessageAction(label="ขอความช่วยเหลือ", text="ช่วยเหลือ")),
+                QuickReplyButton(action=MessageAction(label="เริ่มต้นพยากรณ์ใหม่", text="Prediction"))
+            ]
+        )
+        reply_text = "ขอโทษครับ, ฉันไม่เข้าใจคำสั่งนี้. คุณต้องการทำอะไรต่อ?"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
         return
 
 def create_summary_flex(user_data):
