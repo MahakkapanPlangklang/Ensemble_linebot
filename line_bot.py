@@ -152,7 +152,7 @@ def handle_message(event):
                 QuickReplyButton(action=MessageAction(label="เริ่มต้นพยากรณ์ใหม่", text="Prediction"))
             ]
         )
-        reply_text = "ขอโทษครับ, ฉันไม่เข้าใจคำสั่งนี้. คุณต้องการทำอะไรต่อ?"
+        reply_text = "ไม่เข้าใจคำสั่ง กรุณาเลือกจากปุ่มด้านล่าง"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text, quick_reply=quick_reply))
         return
 
