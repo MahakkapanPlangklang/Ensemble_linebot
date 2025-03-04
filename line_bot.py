@@ -13,7 +13,7 @@ LINE_CHANNEL_SECRET = "9c41d2a0275ecd4e398efd7d2e4548f7"
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
-PREDICTION_API_URL = "https://e2-t7wz.onrender.com/predict"
+PREDICTION_API_URL = "https://ensemble-t564.onrender.com/predict"
 
 user_sessions = {}
 
